@@ -1,0 +1,117 @@
+<!DOCTYPE html><html><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Document</title><link rel=stylesheet href=../css/iconfont.css><link rel=stylesheet href=../css/rest.css><link rel=stylesheet href=../css/wph6.css></head><body><div id=header><div><p><a href=./wph1.html><img src=../image/wph6.png alt=""></a></p><div><ul><li>订单管理</li><li>400-6789-888</li><li>在线客服</li><li>会员服务</li></ul><ul><li><i class="iconfont icon-shijianlishijilujishizhongbiaoxianxing"></i> 100% 正品保证</li><li><i class="iconfont icon-shijianlishijilujishizhongbiaoxianxing"></i>七天无理由放心退</li><li><i class="iconfont icon-shijianlishijilujishizhongbiaoxianxing"></i>限时抢购</li></ul></div></div></div><div id=content><div><p><span>特卖商品</span></p><ul class=ul1><li>唯品自营</li><li>商品名称</li><li>单价</li><li>数量</li><li>操作</li></ul><div class=shop></div><ul class=ul2><li><input type=checkbox class=checkAll>&nbsp;全选</li><li>总金额:&nbsp;<span class=everyPrice>￥&nbsp;0</span></li><li>立即结算</li></ul></div></div><div id=footer-info><div><ul><li>关于我们</li><li>About us</li><li>Investor Relations</li><li>媒体报道</li><li>品牌招商</li><li>隐私条款</li><li>唯品诚聘</li><li>唯品卡</li><li>联系我们</li></ul></div></div><div id=footer-text><div><ul><li>Copyright © 2008-2020 vip.com，All Rights Reserved 使用本网站即表示接受 唯品会用户协议。版权所有 广州唯品会电子商务有限公司</li><li>粤公网安备 44010302111111号 粤ICP备08114786号 增值业务经营许可证：粤B2-20170777 网络文化经营许可证：粤网文〔2018〕5030-1743号</li><li>经营主体证照 风险监测信息 互联网药品信息服务资格证书：（粤）-经营性-2018-0271 网络食品交易第三方平台备案凭证：粤B2-20170777 医疗器械网络交易服务第三方平台备案</li><li>凭证：（粤）网械平台备字[2019]第00001号</li></ul></div></div><script src=../lib/jquery-1.12.4.min.js></script><script>function showCart(){
+                $.ajax({
+                    url:"../server/showlist.php",
+                    dataType:'json',
+                    success:function(res){
+                        $('.shop').html('');
+                        $.each(res.data,function(index,item){
+                            $('.shop').append(`
+                            <ul>
+                                <li><input type="checkbox" class="gouXuan"></li>
+                                <li>
+                                    <img src="${item.product_img}" alt=""> 
+                                </li>
+                                <li>${item.product_name}</li>
+                                <li class="priceSum">￥${item.product_price*item.product_num}</li>
+                                <li>
+                                    <input type="submit" class="cutNum" value="－">
+                                    <input type="text" value="${item.product_num}">
+                                    <input type="submit" class="addNum" value="＋">
+                                </li>
+                                <li>
+                                    <button class="delProduct">删除</button>
+                                </li>
+                            </ul>
+                            `)
+                        })
+                    }
+                })
+            }
+        showCart()
+        
+        $('.shop').on('click','.delProduct',function(){
+            var names = $(this).parent().parent().children().eq(2).html();
+            $.ajax({
+                url:"../server/delwq.php",
+                data:{
+                    name1:names
+                },
+                dataType:'json',
+                success:function(res){
+                    if(res.code){
+                        showCart()
+                        count();
+                    }
+                }
+            })
+            
+        })
+        $('.shop').on('click','.addNum',function(){
+            var names = $(this).parent().parent().children().eq(2).html();
+            $.ajax({
+                url:"../server/updatewq.php",
+                dataType:'json',
+                data:{
+                    type:'add',
+                    name:names
+                },
+                success:function(res){
+                    if(res.code){
+                        showCart()
+                        count()
+                    }
+                }
+            })
+            
+
+        })
+        $('.shop').on('click','.cutNum',function(){
+            var names = $(this).parent().parent().children().eq(2).html();
+            $.ajax({
+                url:"../server/updatewq.php",
+                dataType:'json',
+                data:{
+                    type:'cut',
+                    name:names
+                },
+                success:function(res){
+                    if(res.code){
+                        showCart()
+                        count()
+                    }
+                }
+            })
+        })
+        $('.checkAll').click(function(){
+            if($(this).prop('checked')){
+                $(".gouXuan").prop("checked",true)   
+
+            }else{
+                $(".gouXuan").prop("checked",false)
+            }
+            count()
+            
+        })
+
+            $('.shop').on('click',".gouXuan",function(){
+                // var onePrice=parseInt($(this).parent().parent().children().eq(3).text())
+                // var everyPrice=parseInt($('.everyPrice').text())
+                // if($(this).prop("checked")){
+                //     everyPrice=everyPrice+onePrice
+                //     $('.everyPrice').text(everyPrice)
+                // }else{
+                //     everyPrice=everyPrice-onePrice
+                //     $('.everyPrice').text(everyPrice)
+                // }
+                count()
+            })
+        function count(){     
+                var count = 0;
+                $('.gouXuan').each(function(i,v){                  
+                    if(v.checked){
+                        var m = $(v).parent().siblings('.priceSum').html().substring(1);
+                        count += m*1;
+                    }        
+                })  
+                $('.everyPrice').html("￥"+count)        
+        }</script></body></html>
